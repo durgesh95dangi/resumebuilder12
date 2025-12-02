@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         });
 
         // Log reset link
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
         console.log(`Password Reset Link: ${appUrl}/auth/reset-password?token=${token}`);
 
         return NextResponse.json({ success: true, message: 'If the email exists, we sent a reset link.' });
