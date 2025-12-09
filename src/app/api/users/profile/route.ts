@@ -18,8 +18,6 @@ export async function GET() {
                 name: true,
                 email: true,
                 headline: true,
-                location: true,
-                portfolioUrl: true,
             },
         });
 
@@ -42,7 +40,7 @@ export async function PUT(request: Request) {
         }
 
         const body = await request.json();
-        const { name, headline, location, portfolioUrl } = body;
+        const { name, headline } = body;
 
         // Basic validation
         if (!name) {
@@ -53,8 +51,6 @@ export async function PUT(request: Request) {
             .set({
                 name,
                 headline,
-                location,
-                portfolioUrl,
             })
             .where(eq(users.id, session.userId))
             .returning({
@@ -62,8 +58,6 @@ export async function PUT(request: Request) {
                 name: users.name,
                 email: users.email,
                 headline: users.headline,
-                location: users.location,
-                portfolioUrl: users.portfolioUrl,
             });
 
         return NextResponse.json(updatedUser[0]);

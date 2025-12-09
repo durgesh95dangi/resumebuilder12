@@ -11,7 +11,7 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
         const variants = {
-            primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500/50',
+            primary: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500/50',
             secondary: 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200 focus:ring-gray-500/50',
             destructive: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500/50',
             ghost: 'bg-transparent hover:bg-gray-100 text-gray-700',
@@ -26,7 +26,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         return (
             <button
                 className={cn(
-                    'inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-md',
+                    'inline-flex items-center justify-center font-display font-medium tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-md',
                     variants[variant],
                     sizes[size],
                     className

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { users, passwordResetTokens } from '@/db/schema';
 import { forgotPasswordSchema } from '@/lib/validations';
+import { sendPasswordResetEmail } from '@/lib/mail';
 import { eq } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 
@@ -35,9 +36,8 @@ export async function POST(request: Request) {
             expiresAt,
         });
 
-        // Log reset link
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://resumebuilder123.vercel.app';
-        console.log(`Password Reset Link: ${appUrl}/auth/reset-password?token=${token}`);
+        // Send reset email
+        await sendPasswordResetEmail(email, token);
 
         return NextResponse.json({ success: true, message: 'If the email exists, we sent a reset link.' });
     } catch (error) {

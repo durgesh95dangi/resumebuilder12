@@ -100,25 +100,7 @@ export default function SignUpPage() {
                     />
                 </FormField>
 
-                <FormField label="Location (Optional)" error={errors.location?.message}>
-                    <Input
-                        id="location"
-                        type="text"
-                        placeholder="e.g. New York, NY"
-                        error={!!errors.location}
-                        {...register('location')}
-                    />
-                </FormField>
 
-                <FormField label="Portfolio URL (Optional)" error={errors.portfolioUrl?.message}>
-                    <Input
-                        id="portfolioUrl"
-                        type="url"
-                        placeholder="https://..."
-                        error={!!errors.portfolioUrl}
-                        {...register('portfolioUrl')}
-                    />
-                </FormField>
 
                 <FormField label="Password" error={errors.password?.message}>
                     <Input

@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { users } from '@/db/schema';
+import { users, emailVerificationTokens } from '@/db/schema';
 import { createSession } from '@/lib/auth';
 import { hashPassword } from '@/lib/password';
 import { signUpSchema } from '@/lib/validations';
+import { sendVerificationEmail } from '@/lib/mail';
 import { eq } from 'drizzle-orm';
 
 export async function POST(request: Request) {
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: result.error.flatten().fieldErrors }, { status: 400 });
         }
 
-        const { name, email, password, headline, location, portfolioUrl } = result.data;
+        const { name, email, password, headline } = result.data;
 
         // Check if user exists
         const existingUser = await db.select().from(users).where(eq(users.email, email)).get();
@@ -32,9 +33,20 @@ export async function POST(request: Request) {
             email,
             passwordHash: hashedPassword,
             headline,
-            location,
-            portfolioUrl,
         }).returning().get();
+
+        // Generate verification token
+        const verificationToken = crypto.randomUUID();
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        await db.insert(emailVerificationTokens).values({
+            userId: newUser.id,
+            token: verificationToken,
+            expiresAt,
+        });
+
+        // Send verification email
+        await sendVerificationEmail(email, verificationToken);
 
         // Create session
         await createSession(newUser.id);

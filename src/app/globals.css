@@ -3,11 +3,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-inter: 'Inter', sans-serif;
+  --font-host-grotesk: 'Host Grotesk', sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-host-grotesk);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,5 +24,26 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-inter), sans-serif;
+  letter-spacing: 0.01em;
+  /* Breather for body text */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-host-grotesk), sans-serif;
+  letter-spacing: -0.02em;
+  /* Modern, eye-catchy for headings */
+}
+
+/* Ensure buttons stand out with "breather" spacing */
+button,
+.button,
+a[class*="bg-"] {
+  letter-spacing: 0.025em;
+  /* tracking-wide */
 }

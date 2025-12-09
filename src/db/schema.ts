@@ -7,13 +7,21 @@ export const users = sqliteTable('users', {
     email: text('email').notNull().unique(),
     passwordHash: text('password_hash').notNull(),
     headline: text('headline'),
-    location: text('location'),
-    portfolioUrl: text('portfolio_url'),
+
+    emailVerified: integer('email_verified', { mode: 'timestamp' }),
     createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).$onUpdate(() => new Date()),
 });
 
 export const passwordResetTokens = sqliteTable('password_reset_tokens', {
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+    token: text('token').notNull().unique(),
+    expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
+export const emailVerificationTokens = sqliteTable('email_verification_tokens', {
     id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
     userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
     token: text('token').notNull().unique(),

@@ -6,6 +6,7 @@ import { RoleSelection } from '@/components/onboarding/RoleSelection';
 import { JobDescriptionInput } from '@/components/onboarding/JobDescriptionInput';
 import { StartingPoint } from '@/components/onboarding/StartingPoint';
 import { Wizard } from '@/components/onboarding/Wizard';
+import { ResumeBuilderWizard } from '@/components/builder/ResumeBuilderWizard';
 import { FormError } from '@/components/ui/FormError';
 import { fetchWithTimeout } from '@/lib/utils';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
@@ -87,43 +88,41 @@ export default function OnboardingPage() {
         }
     };
 
-    const handleWizardComplete = async (data: any) => {
-        setIsLoading(true);
-        setError('');
+    // New autosave handler for the 5-step builder
+    const handleAutoSave = async (data: any) => {
+        if (!resumeId) return;
         try {
-            const res = await fetchWithTimeout(`/api/resumes/${resumeId}`, {
+            // We store the rich JSON structure in 'content'
+            await fetchWithTimeout(`/api/resumes/${resumeId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: data, role, status: 'completed' }),
+                body: JSON.stringify({ content: data, status: 'draft' }),
             });
-
-            if (res.ok) {
-                router.push(`/resume/${resumeId}/preview`);
-            } else {
-                throw new Error('Failed to save resume');
-            }
         } catch (error) {
-            console.error('Error saving resume:', error);
-            setError('Failed to save resume. Please try again.');
-        } finally {
-            setIsLoading(false);
+            console.error('Autosave error:', error);
+            // Silent error for autosave to avoid disrupting user flow, 
+            // or maybe show a toast (but we don't have a toast system ready here yet).
         }
     };
 
     const getInitialData = () => {
+        // Map profile data to new schema structure if available
         if (!profileData) return undefined;
         return {
-            portfolio: { main: profileData.portfolioUrl || '', other: [] },
-            summary: {
-                years: '',
-                strengths: '',
-                background: profileData.headline || '',
+            personal: {
+                fullName: profileData.name || '',
+                email: profileData.email || '',
+                title: role || '', // Pre-fill title from selected role
+                // location: profileData.location || '', // removed
+                // portfolio: profileData.portfolioUrl || '', // removed from profile but kept in resume
             },
-            skills: { core: '', tools: '', soft: '' },
-            experience: [{ company: '', title: '', startDate: '', endDate: '', currentlyWorking: false, responsibilities: '' }],
-            projects: [{ title: '', role: '', description: '', impact: '' }],
-            education: [{ degree: '', institute: '', year: '' }],
-            certifications: '',
+            summary: profileData.headline || '',
+            skills: { core: [], tools: [], soft: [] },
+            experience: [],
+            education: [],
+            certifications: [],
+            projects: [],
+            languages: []
         };
     };
 
@@ -136,7 +135,12 @@ export default function OnboardingPage() {
                 {step === 'role' && <RoleSelection onNext={handleRoleSelect} />}
                 {step === 'jd' && <JobDescriptionInput onNext={handleJDSubmit} onSkip={() => handleJDSubmit()} isLoading={isLoading} />}
                 {step === 'start' && <StartingPoint onSelect={handleStartSelect} />}
-                {step === 'wizard' && <Wizard role={role} initialData={getInitialData()} onComplete={handleWizardComplete} />}
+                {step === 'wizard' && (
+                    <ResumeBuilderWizard
+                        initialData={getInitialData()}
+                        onSave={handleAutoSave}
+                    />
+                )}
             </div>
         </DashboardLayout>
     );

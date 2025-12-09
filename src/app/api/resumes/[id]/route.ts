@@ -14,18 +14,31 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
         const { id } = await params;
         const body = await request.json();
-        const { content, role, status } = body;
+        const { content, role, status, atsScore } = body;
 
         // Generate draft if not already generated (mock AI)
+        // This line is kept, but its output 'refinedContent' is no longer directly used for the 'content' field update
+        // if 'content' is provided in the request body.
+        // If 'content' is not provided, 'refinedContent' would not be used for the update.
+        // The instruction focuses on how the 'content' field from the request body is handled.
         const refinedContent = await generateResumeDraft(content, role || 'Professional');
 
         const updateData: any = {
-            content: JSON.stringify(refinedContent),
             updatedAt: new Date(),
         };
 
-        if (status) {
+        // Conditionally add fields to updateData if they are present in the request body
+        if (content !== undefined) { // Check for undefined to allow empty string or null content
+            updateData.content = JSON.stringify(content);
+        }
+        if (role !== undefined) {
+            updateData.role = role;
+        }
+        if (status !== undefined) {
             updateData.status = status;
+        }
+        if (atsScore !== undefined) {
+            updateData.atsScore = atsScore;
         }
 
         const [updatedResume] = await db.update(resumes)

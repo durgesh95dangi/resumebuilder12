@@ -10,9 +10,9 @@ export async function GET() {
                 name: true,
                 email: true,
                 headline: true,
-                location: true,
                 createdAt: true,
             },
+
             orderBy: (users, { desc }) => [desc(users.createdAt)],
         });
 
